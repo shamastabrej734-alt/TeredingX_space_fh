@@ -1,0 +1,132 @@
+{
+  "$schema": "https://raw.githubusercontent.com/firebase/firebase-tools/master/schema/firestore-rules.json",
+  "collections": {
+    "users": {
+      "path": "users/{userId}",
+      "schema": {
+        "name": "string",
+        "email": "string",
+        "photoURL": "string?",
+        "role": "string",
+        "virtualBalance": "number",
+        "bonusClaimed": "boolean",
+        "createdAt": "timestamp",
+        "status": "string"
+      },
+      "rules": {
+        "read": "request.auth != null && (request.auth.uid == userId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')",
+        "create": "request.auth != null && request.auth.uid == userId",
+        "update": "request.auth != null && (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'virtualBalance', 'bonusClaimed'])) || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'",
+        "delete": "get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'"
+      }
+    },
+    "assets": {
+      "path": "assets/{assetId}",
+      "schema": {
+        "symbol": "string",
+        "name": "string",
+        "currentPrice": "number",
+        "change24h": "number",
+        "changePercent24h": "number",
+        "lastUpdated": "timestamp?"
+      },
+      "rules": {
+        "read": "request.auth != null",
+        "create": "get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'",
+        "update": "get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'",
+        "delete": "get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'"
+      }
+    },
+    "portfolios": {
+      "path": "portfolios/{portfolioId}",
+      "schema": {
+        "userId": "string",
+        "assetId": "string",
+        "symbol": "string",
+        "quantity": "number",
+        "averagePrice": "number",
+        "totalInvested": "number",
+        "lastUpdated": "timestamp"
+      },
+      "rules": {
+        "read": "request.auth != null && (request.auth.uid == resource.data.userId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')",
+        "create": "request.auth != null && (request.auth.uid == request.resource.data.userId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')",
+        "update": "request.auth != null && (request.auth.uid == resource.data.userId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')",
+        "delete": "get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'"
+      }
+    },
+    "trades": {
+      "path": "trades/{tradeId}",
+      "schema": {
+        "userId": "string",
+        "assetId": "string",
+        "symbol": "string",
+        "type": "string",
+        "quantity": "number",
+        "price": "number",
+        "total": "number",
+        "status": "string",
+        "createdAt": "timestamp"
+      },
+      "rules": {
+        "read": "request.auth != null && (request.auth.uid == resource.data.userId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')",
+        "create": "request.auth != null && request.auth.uid == request.resource.data.userId",
+        "update": "get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'",
+        "delete": "false"
+      }
+    },
+    "transactions": {
+      "path": "transactions/{transactionId}",
+      "schema": {
+        "userId": "string",
+        "type": "string",
+        "amount": "number",
+        "status": "string",
+        "createdAt": "timestamp",
+        "description": "string"
+      },
+      "rules": {
+        "read": "request.auth != null && (request.auth.uid == resource.data.userId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')",
+        "create": "request.auth != null && request.auth.uid == request.resource.data.userId",
+        "update": "get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'",
+        "delete": "false"
+      }
+    },
+    "withdrawalRequests": {
+      "path": "withdrawalRequests/{requestId}",
+      "schema": {
+        "userId": "string",
+        "amount": "number",
+        "method": "string",
+        "accountDetails": "string",
+        "status": "string",
+        "createdAt": "timestamp",
+        "processedAt": "timestamp?",
+        "adminId": "string?"
+      },
+      "rules": {
+        "read": "request.auth != null && (request.auth.uid == resource.data.userId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')",
+        "create": "request.auth != null && request.auth.uid == request.resource.data.userId",
+        "update": "get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'",
+        "delete": "false"
+      }
+    },
+    "adminLogs": {
+      "path": "adminLogs/{logId}",
+      "schema": {
+        "adminId": "string",
+        "userId": "string",
+        "action": "string",
+        "amount": "number?",
+        "reason": "string",
+        "createdAt": "timestamp"
+      },
+      "rules": {
+        "read": "get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'",
+        "create": "get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' && request.auth.uid == request.resource.data.adminId",
+        "update": "false",
+        "delete": "false"
+      }
+    }
+  }
+}

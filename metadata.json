@@ -1,0 +1,6 @@
+{
+  "name": "TradingX",
+  "description": "A professional virtual trading simulator with realistic market experience, portfolio tracking, and demo funds.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
