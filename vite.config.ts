@@ -15,10 +15,11 @@ export default defineConfig(() => {
       host: '0.0.0.0',
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
+      allowedHosts: ['.onrender.com'],
     },
     preview: {
       host: '0.0.0.0',
-      allowedHosts: ['teredingx-space-fh-3.onrender.com'],
+      allowedHosts: ['.onrender.com'],
     },
   };
 });
